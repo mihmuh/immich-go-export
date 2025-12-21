@@ -2,6 +2,9 @@
 
 **Immich-Go** is an open-source tool designed to streamline uploading large photo collections to your self-hosted Immich server.
 
+> [!NOTE]
+> This repository is a fork of the original [immich-go](https://github.com/simulot/immich-go) project. It led out of a personal need to export Google Photos Takeouts locally without requiring a running Immich server. I've implemented this specific functionality and am sharing it here for others who might find it useful. All credit for the original tool goes to the original authors.
+
 > ⚠️ This is an early version, not yet extensively tested<br>
 > ⚠️ Keep a backup copy of your files for safety<br>
 
@@ -12,6 +15,15 @@
 - **Large Collections**: Successfully handles 100,000+ photos
 - **Smart Management**: Duplicate detection, burst photo stacking, RAW+JPEG handling
 - **Cross-Platform**: Available for Windows, macOS, Linux, and FreeBSD
+- **Offline Export**: Process Google Photos Takeouts locally to organize files and restore metadata without a server
+
+## 🆕 New: Export from Google Photos (No Server Required)
+
+You can now use `immich-go` to process Google Photos Takeout archives locally, without needing an Immich server. This command extracts photos, restores their capture dates (modifying the file's mtime), and organizes them into date-based folders (`YYYY/MM`).
+
+```bash
+immich-go export from-google-photos --dest /path/to/destination /path/to/takeout.zip
+```
 
 ## 🚀 Quick Start
 
@@ -28,6 +40,9 @@ immich-go upload from-google-photos --server=http://your-ip:2283 --api-key=your-
 
 # Archive photos from Immich server
 immich-go archive from-immich --server=http://your-ip:2283 --api-key=your-api-key --write-to-folder=/path/to/archive
+
+# Export Google Photos Takeout to local disk (no server needed)
+immich-go export from-google-photos --dest /home/user/photos /path/to/takeout-*.zip
 ```
 
 ### 3. Requirements
