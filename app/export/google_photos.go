@@ -6,6 +6,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/simulot/immich-go/adapters"
@@ -48,6 +49,14 @@ func (ec *ExportCmd) handleGroup(ctx context.Context, group *assets.Group) error
 	return nil
 }
 
+func afterLastSlash(s string) string {
+	i := strings.LastIndex(s, "/")
+	if i == -1 {
+		return s // no slash found
+	}
+	return s[i+1:]
+}
+
 func (ec *ExportCmd) exportAsset(ctx context.Context, asset *assets.Asset) error {
 
 	if asset.Trashed {
@@ -68,11 +77,11 @@ func (ec *ExportCmd) exportAsset(ctx context.Context, asset *assets.Asset) error
 		return fmt.Errorf("create dir: %w", err)
 	}
 
-	destPath := filepath.Join(destDir, asset.OriginalFileName)
+	destPath := correctName(asset, destDir)
 
 	// Check idempotency
 	if _, err := os.Stat(destPath); err == nil {
-		ec.app.Log().Info("Skipping existing file", "path", destPath)
+		ec.app.Log().Info("Skipping existing file", "path", destPath, "original", asset.OriginalFileName, "file", afterLastSlash(asset.File.Name()))
 		return nil
 	}
 
@@ -102,4 +111,13 @@ func (ec *ExportCmd) exportAsset(ctx context.Context, asset *assets.Asset) error
 
 	ec.app.Log().Info("Exported", "path", destPath)
 	return nil
+}
+
+func correctName(asset *assets.Asset, destDir string) string {
+	fname := afterLastSlash(asset.File.Name())
+	if fname != asset.OriginalFileName && strings.Contains(fname, "-edited") {
+		return filepath.Join(destDir, fname)
+	} else {
+		return filepath.Join(destDir, asset.OriginalFileName)
+	}
 }
